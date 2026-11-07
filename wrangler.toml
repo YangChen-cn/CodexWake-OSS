@@ -1,0 +1,35 @@
+name = "codexwake"
+main = "src/worker.mjs"
+compatibility_date = "2026-10-01"
+
+[vars]
+# The feature is available, but account-level automatic activation remains
+# disabled until the authenticated administrator completes enrollment.
+ACTIVATION_ENABLED = "false"
+ACTIVITY_WAKES_ENABLED = "false"
+GITHUB_DISPATCH_OWNER = "YOUR_GITHUB_OWNER"
+GITHUB_DISPATCH_REPO = "YOUR_PRIVATE_REPO"
+GITHUB_OIDC_AUDIENCE = "https://YOUR_WORKER.workers.dev"
+GITHUB_OIDC_REPOSITORY_ID = "YOUR_REPOSITORY_ID"
+GITHUB_OIDC_OWNER_ID = "YOUR_OWNER_ID"
+GITHUB_OIDC_REF = "refs/heads/main"
+GITHUB_OIDC_WORKFLOW_REF = "YOUR_GITHUB_OWNER/YOUR_PRIVATE_REPO/.github/workflows/wake.yml@refs/heads/main"
+# GITHUB_OIDC_WORKFLOW_SHA and all tokens are set out-of-band as Worker
+# secrets after the exact workflow commit has been pushed and reviewed.
+
+[triggers]
+crons = ["* * * * *"]
+
+[[durable_objects.bindings]]
+name = "COORDINATOR"
+class_name = "Coordinator"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Coordinator"]
+
+# KV mirrors non-sensitive status only. The Durable Object remains the
+# authoritative state and coordination mechanism.
+[[kv_namespaces]]
+binding = "STATE_SNAPSHOTS"
+id = "00000000000000000000000000000000"

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="codexwake-csrf" content="%%CSRF%%">
+  <title>CodexWake</title>
+  <link rel="stylesheet" href="/ui.css">
+  <script src="/ui.js" defer></script>
+</head>
+<body data-mode="local">
+<main>
+  <header>
+    <div><p class="eyebrow">本机控制面板</p><h1>CodexWake</h1></div>
+    <button id="refresh" type="button">刷新状态</button>
+  </header>
+  <p id="notice" role="status" aria-live="polite">正在读取状态…</p>
+  <section class="cards" aria-label="当前状态">
+    <article><h2>本机监测</h2><p id="monitor">未知</p><small %%LOCAL_VISIBILITY%%>仅在已安装的 Codex hook 收到真实活动时运行。</small></article>
+    <article><h2>五小时额度</h2><p id="quota">未知</p><button id="read-quota" type="button" %%LOCAL_VISIBILITY%%>只读获取额度</button></article>
+    <article><h2>云端预热</h2><p id="wake">未知</p><small id="last">最近真实活动：未知</small></article>
+  </section>
+  <section>
+    <h2>运行控制</h2>
+    <p>旅行暂停会取消待执行预热。已获得发送许可的请求可能仍会完成。</p>
+    <div class="actions">
+      <button data-control="pause">旅行暂停</button>
+      <button data-control="resume">恢复自动预热</button>
+      <button data-control="cancel">取消本次预热</button>
+    </div>
+  </section>
+  <section>
+    <h2>云端设置</h2>
+    <form id="settings">
+      <fieldset id="config-fields" disabled>
+        <label>时区<input name="timeZone" required placeholder="Asia/Hong_Kong"></label>
+        <label>允许开始<input type="time" name="allowedStart" required></label>
+        <label>允许结束<input type="time" name="allowedEnd" required></label>
+        <label>睡眠开始<input type="time" name="sleepStart" required></label>
+        <label>睡眠结束<input type="time" name="sleepEnd" required></label>
+        <label>连续自动预热上限<input name="maxIdleWakes" type="number" min="1" max="12" required></label>
+        <label>模型<input name="model" maxlength="200"></label>
+        <label class="wide">消息<textarea name="activationMessage" required maxlength="1000" rows="2"></textarea></label>
+        <label class="check"><input name="autoEnabled" type="checkbox">自动预热</label>
+        <label class="check"><input name="notifySuccess" type="checkbox">成功通知</label>
+        <div class="wide"><button type="submit" class="primary">保存至 Cloudflare</button></div>
+      </fieldset>
+    </form>
+  </section>
+  <section>
+    <h2>使用预约</h2>
+    <p>按云端时区输入使用时间。预热时间会结合已知额度窗口和允许时段调整。重复按 24 小时或 7 天计算。</p>
+    <p id="appointment-summary"></p>
+    <ul id="appointment-list"></ul>
+    <form id="appointment-form">
+      <fieldset id="appointment-fields" disabled>
+        <label>开始<input name="start" type="datetime-local" required></label>
+        <label>预计使用时长<select name="duration">
+          <option value="60">1 小时</option>
+          <option value="120" selected>2 小时</option>
+          <option value="180">3 小时</option>
+          <option value="240">4 小时</option>
+          <option value="custom">自定义结束</option>
+        </select></label>
+        <label id="custom-end" hidden>结束时间<input name="end" type="datetime-local" disabled></label>
+        <label>开始后多久恢复额度<select name="preset">
+          <option value="60">约 1 小时</option>
+          <option value="120">约 2 小时</option>
+          <option value="start">开始时激活</option>
+          <option value="custom">自定义分钟数</option>
+        </select></label>
+        <label id="custom-recovery" hidden>开始后分钟<input name="recovery" type="number" min="0" max="300" value="90"></label>
+        <label>重复<select name="repeat"><option value="none">单次</option><option value="daily">每 24 小时</option><option value="weekly">每 7 天</option></select></label>
+        <p id="appointment-end-preview" class="wide" aria-live="polite">填入开始时间后，自动计算结束时间。</p>
+        <div class="wide actions"><button id="save-appointment" type="submit" class="primary">添加预约</button><button id="clear-appointment" type="button">清空编辑</button></div>
+      </fieldset>
+    </form>
+  </section>
+  <section %%LOCAL_VISIBILITY%%>
+    <h2>本机 hook</h2>
+    <p>安装后按 Codex 提示信任 hook。暂停本机监测后，已布防任务仍由云端处理。</p>
+    <div class="actions">
+      <button data-monitor="install">安装</button>
+      <button data-monitor="uninstall">卸载</button>
+      <button data-monitor="start">开始监听</button>
+      <button data-monitor="stop">停止监听</button>
+    </div>
+  </section>
+  <footer %%EXIT_VISIBILITY%%><button id="exit" type="button">关闭面板服务</button></footer>
+</main>
+</body>
+</html>

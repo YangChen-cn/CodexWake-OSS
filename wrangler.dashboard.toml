@@ -1,0 +1,16 @@
+name = "codexwake-dashboard"
+main = "src/remote-dashboard-worker.mjs"
+compatibility_date = "2026-10-01"
+workers_dev = true
+preview_urls = false
+
+[build]
+command = "node scripts/build-dashboard-assets.mjs"
+
+[vars]
+DASHBOARD_HOST = "YOUR_DASHBOARD.workers.dev"
+
+[[durable_objects.bindings]]
+name = "COORDINATOR"
+class_name = "Coordinator"
+script_name = "codexwake"

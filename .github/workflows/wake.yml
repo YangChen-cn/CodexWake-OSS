@@ -1,0 +1,92 @@
+name: CodexWake estimated activation
+
+on:
+  workflow_dispatch:
+    inputs:
+      attempt_id:
+        description: Durable coordinator attempt ID
+        type: string
+        required: true
+      smoke_test:
+        description: Verify OIDC only; do not load OAuth credentials
+        type: boolean
+        default: false
+      credential_test:
+        description: Validate encrypted secret without starting Codex
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: codexwake-oauth
+  cancel-in-progress: false
+
+jobs:
+  oidc-smoke:
+    if: ${{ inputs.smoke_test }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out trusted revision
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '24'
+      - name: Verify trusted identity without OAuth
+        env:
+          CODEXWAKE_WORKER_URL: ${{ vars.CODEXWAKE_WORKER_URL }}
+          CODEXWAKE_OIDC_AUDIENCE: ${{ vars.CODEXWAKE_OIDC_AUDIENCE }}
+        run: node scripts/oidc-smoke.mjs
+  credential-smoke:
+    if: ${{ inputs.credential_test }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out trusted revision
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '24'
+      - name: Validate secret and identity without Codex
+        env:
+          CODEXWAKE_WORKER_URL: ${{ vars.CODEXWAKE_WORKER_URL }}
+          CODEXWAKE_OIDC_AUDIENCE: ${{ vars.CODEXWAKE_OIDC_AUDIENCE }}
+          CODEX_AUTH_BUNDLE: ${{ secrets.CODEX_AUTH_BUNDLE }}
+        run: node scripts/credential-smoke.mjs
+  activate:
+    # A manually dispatched run still needs a matching durable reservation,
+    # OIDC identity and a one-shot permit before it can start Codex.
+    if: ${{ !inputs.smoke_test && !inputs.credential_test }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out trusted revision
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '24'
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Execute a coordinator-authorized turn
+        env:
+          CODEXWAKE_ATTEMPT_ID: ${{ inputs.attempt_id }}
+          CODEXWAKE_CODEX_PATH: ${{ github.workspace }}/node_modules/.bin/codex
+          CODEXWAKE_WORKER_URL: ${{ vars.CODEXWAKE_WORKER_URL }}
+          CODEXWAKE_OIDC_AUDIENCE: ${{ vars.CODEXWAKE_OIDC_AUDIENCE }}
+          CODEXWAKE_GITHUB_OWNER: ${{ github.repository_owner }}
+          CODEXWAKE_GITHUB_REPO: ${{ github.event.repository.name }}
+          CODEX_AUTH_BUNDLE: ${{ secrets.CODEX_AUTH_BUNDLE }}
+          CODEXWAKE_SECRETS_TOKEN: ${{ secrets.CODEXWAKE_SECRETS_WRITE_TOKEN }}
+        run: node scripts/runner-activation.mjs

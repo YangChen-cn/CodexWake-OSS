@@ -1,0 +1,38 @@
+{
+  "name": "codexwake",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "dev": "wrangler dev --test-scheduled",
+    "check": "wrangler deploy --dry-run",
+    "bootstrap": "node scripts/bootstrap.mjs",
+    "probe": "node scripts/runner-probe.mjs",
+    "config": "node scripts/config.mjs",
+    "setup:github-tokens": "bash scripts/setup-github-tokens.sh",
+    "reauth": "node scripts/reauth.mjs",
+    "activity": "node scripts/activity.mjs",
+    "monitor:install": "node scripts/monitor.mjs install",
+    "monitor:uninstall": "node scripts/monitor.mjs uninstall",
+    "monitor:start": "node scripts/monitor.mjs start",
+    "monitor:stop": "node scripts/monitor.mjs stop",
+    "monitor:status": "node scripts/monitor.mjs status",
+    "dashboard": "node scripts/dashboard.mjs",
+    "dashboard:install": "node scripts/dashboard-agent.mjs install",
+    "dashboard:status": "node scripts/dashboard-agent.mjs status",
+    "dashboard:uninstall": "node scripts/dashboard-agent.mjs uninstall",
+    "setup:activity-token": "node scripts/setup-activity-token.mjs",
+    "dashboard:cloud:check": "wrangler deploy --dry-run --config wrangler.dashboard.toml",
+    "dashboard:cloud:deploy": "wrangler deploy --config wrangler.dashboard.toml"
+  },
+  "devDependencies": {
+    "@openai/codex": "0.166.0",
+    "miniflare": "5.20261103.0-beta",
+    "wrangler": "^4.0.0"
+  },
+  "dependencies": {
+    "libsodium-wrappers": "0.8.4"
+  },
+  "license": "GPL-3.0-only"
+}

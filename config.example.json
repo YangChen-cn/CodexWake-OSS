@@ -1,0 +1,13 @@
+{
+  "autoEnabled": false,
+  "timeZone": "Asia/Hong_Kong",
+  "allowedStart": "08:00",
+  "allowedEnd": "23:00",
+  "sleepStart": "23:00",
+  "sleepEnd": "08:00",
+  "activationMessage": "hello",
+  "model": null,
+  "maxRetries": 2,
+  "retryIntervalMinutes": 15,
+  "notifySuccess": false
+}

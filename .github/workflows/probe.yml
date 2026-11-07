@@ -1,0 +1,52 @@
+name: CodexWake read-only probe
+
+on:
+  workflow_dispatch:
+    inputs:
+      attempt_id:
+        description: Coordinator-reserved preflight ID
+        type: string
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: codexwake-oauth
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    # Deliberately disabled until the App Server hosted-use question, isolated
+    # OAuth recovery, and real-account behavior are verified and documented.
+    if: ${{ false }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out trusted revision
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '24'
+      # Dependencies are installed before any OAuth or Secrets-write value is
+      # passed to a process. All packages are locked by package-lock.json.
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Check Codex CLI version
+        run: ./node_modules/.bin/codex --version
+      - name: Run read-only probe
+        env:
+          CODEXWAKE_ATTEMPT_ID: ${{ inputs.attempt_id }}
+          CODEXWAKE_CODEX_PATH: ${{ github.workspace }}/node_modules/.bin/codex
+          CODEXWAKE_LIMIT_ID: ${{ vars.CODEXWAKE_LIMIT_ID }}
+          CODEXWAKE_WORKER_URL: ${{ vars.CODEXWAKE_WORKER_URL }}
+          CODEXWAKE_OIDC_AUDIENCE: ${{ vars.CODEXWAKE_OIDC_AUDIENCE }}
+          CODEXWAKE_GITHUB_OWNER: ${{ github.repository_owner }}
+          CODEXWAKE_GITHUB_REPO: ${{ github.event.repository.name }}
+          CODEX_AUTH_BUNDLE: ${{ secrets.CODEX_AUTH_BUNDLE }}
+          CODEXWAKE_SECRETS_TOKEN: ${{ secrets.CODEXWAKE_SECRETS_WRITE_TOKEN }}
+        run: npm run probe

@@ -1,0 +1,35 @@
+name: Verify CodexWake
+
+# Development-only manual entry. This workflow cannot activate a window and
+# does not receive OAuth or Secrets-write credentials.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codexwake-verify
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out trusted revision
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '24'
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Run local tests
+        run: npm test
+      - name: Check Worker bundle
+        env:
+          WRANGLER_SEND_METRICS: 'false'
+        run: npm run check

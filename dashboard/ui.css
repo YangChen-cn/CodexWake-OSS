@@ -1,0 +1,39 @@
+:root { color-scheme: dark; font: 16px/1.5 system-ui, sans-serif; background: #11181a; color: #e6efed; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { max-width: 920px; margin: 0 auto; padding: 2rem 1rem; }
+header, .actions { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+header { justify-content: space-between; }
+.eyebrow { color: #9fe5cf; margin: 0; font-size: .9rem; }
+h1 { margin: 0; font-size: 2.4rem; letter-spacing: -.035em; }
+h2 { font-size: 1rem; margin: 0 0 .5rem; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: .75rem; }
+article, section:not(.cards) { background: #1b2628; border: 1px solid #344447; border-radius: .8rem; padding: 1rem; }
+section { margin: 1rem 0; }
+p { margin: 0 0 .65rem; }
+small, footer, #notice { color: #b7c7c4; }
+#notice { min-height: 1.5em; margin-top: .8rem; }
+button, input, textarea, select { font: inherit; border: 1px solid #536b6b; border-radius: .4rem; padding: .48rem .72rem; background: #172122; color: inherit; }
+button { cursor: pointer; }
+button:hover, button:focus-visible { border-color: #a3f4d9; }
+button:disabled, fieldset:disabled { opacity: .55; cursor: default; }
+.primary { color: #122321; background: #9fe5cf; border-color: transparent; font-weight: 650; }
+fieldset { padding: 0; margin: 0; border: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: .75rem; }
+label { display: grid; gap: .25rem; }
+.wide { grid-column: 1 / -1; }
+.check { display: flex; align-items: center; }
+footer { margin-top: 1.5rem; }
+
+[hidden] { display: none !important; }
+#appointment-list { padding-left: 1.25rem; }
+#appointment-list li { margin-bottom: .75rem; }
+#appointment-list button { margin-left: .5rem; }
+
+fieldset, label, input, textarea, select { min-width: 0; max-width: 100%; }
+
+#appointment-fields { grid-template-columns: repeat(auto-fit, minmax(min(100%, 195px), 1fr)); }
+#appointment-fields :is(input, select) { width: 100%; min-height: 2.75rem; }
+#appointment-end-preview { color: #b7c7c4; margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 560px) {
+  #appointment-fields { grid-template-columns: minmax(0, 1fr); }
+}
